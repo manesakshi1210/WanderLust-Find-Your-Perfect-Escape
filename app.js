@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing");
+const path = require("path");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
@@ -18,25 +19,18 @@ async function main() {
   await mongoose.connect(MONGO_URL);
 }
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 // Root Route
 app.get("/", (req, res) => {
   res.send("Hi, I am root");
 });
 
-// Test Route
-app.get("/testlisting", async (req, res) => {
-  let sampleListing = new Listing({
-    title: "My new villa",
-    description: "by the beach",
-    price: 1200,
-    location: "Goa",
-    country: "India",
-  });
-
-  await sampleListing.save();
-
-  console.log("Sample was saved!");
-  res.send("Successful Testing");
+// Listings Route
+app.get("/listings", async (req, res) => {
+  const allListings = await Listing.find({});
+  res.render("listings/index", { allListings });
 });
 
 // Server
